@@ -8,11 +8,13 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Clone repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: brew install carthage
+        run: |
+          brew install carthage
+          carthage bootstrap --platform macOS --no-use-binaries
 
       - name: Build project
         run: |
