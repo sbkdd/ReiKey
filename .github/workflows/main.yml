@@ -8,22 +8,22 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
-
-      - name: Install Homebrew dependencies
-        run: |
-          brew install carthage
 
       - name: Configure GitHub authentication for Carthage
         run: |
           echo "machine github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
           echo "machine api.github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
 
+      - name: Install Homebrew dependencies
+        run: |
+          brew install carthage
+
       - name: Bootstrap dependencies
         run: carthage bootstrap --platform macOS
 
-      - name: Build project
+      - name: Build with Xcode
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
                      -scheme ReiKey \
