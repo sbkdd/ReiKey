@@ -14,33 +14,23 @@ jobs:
       - name: Install Homebrew dependencies
         run: |
           brew install carthage
-          brew install cocoapods
+
+      - name: Configure GitHub authentication for Carthage
+        run: |
+          echo "machine github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
+          echo "machine api.github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
 
       - name: Bootstrap dependencies
         run: carthage bootstrap --platform macOS
 
-      - name: Patch Sentry.xcodeproj to fix deployment target
-        run: |
-          find Carthage/Checkouts/sentry-cocoa -name project.pbxproj -exec \
-            /usr/bin/sed -i '' 's/MACOSX_DEPLOYMENT_TARGET = 10.9;/MACOSX_DEPLOYMENT_TARGET = 10.13;/g' {} \;
-
-          echo "✅ Patched MACOSX_DEPLOYMENT_TARGET to 10.13"
-          grep -R 'MACOSX_DEPLOYMENT_TARGET' Carthage/Checkouts/sentry-cocoa | head -10
-
-      - name: Install CocoaPods dependencies
-        run: |
-          cd mainApp
-          pod install || true
-          cd ..
-
-      - name: Build with Xcode
+      - name: Build project
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
                      -scheme ReiKey \
                      -configuration Release \
                      clean build
 
-      - name: Upload built app
+      - name: Upload .app
         uses: actions/upload-artifact@v4
         with:
           name: ReiKey.app
