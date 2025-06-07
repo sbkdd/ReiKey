@@ -5,26 +5,28 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13  # более стабильный образ
+    runs-on: macos-13
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install latest Carthage
-        run: brew install carthage || brew upgrade carthage
+        run: |
+          brew install carthage || brew upgrade carthage
 
       - name: Bootstrap dependencies
         run: |
-          carthage bootstrap --platform macOS --use-xcframeworks --no-use-binaries \
-            --verbose \
-            --cache-builds
+          export MACOSX_DEPLOYMENT_TARGET=10.13
+          carthage bootstrap --platform macOS --use-xcframeworks --no-use-binaries --verbose --cache-builds
 
       - name: Build with Xcode
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
                      -scheme ReiKey \
                      -configuration Release \
+                     -destination 'platform=macOS' \
+                     MACOSX_DEPLOYMENT_TARGET=10.13 \
                      CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
                      clean build
 
