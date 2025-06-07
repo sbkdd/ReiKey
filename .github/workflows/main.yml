@@ -11,14 +11,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install latest Carthage
-        run: |
-          brew install carthage || brew upgrade carthage
+      - name: Install Carthage
+        run: brew install carthage || brew upgrade carthage
 
       - name: Bootstrap dependencies
         run: |
           env MACOSX_DEPLOYMENT_TARGET=10.13 \
           carthage bootstrap --platform macOS --use-xcframeworks --no-use-binaries --verbose --cache-builds
+
+      - name: Patch Sentry.xcodeproj to fix deployment target
+        run: |
+          find Carthage/Checkouts/sentry-cocoa -name project.pbxproj -exec \
+            sed -i '' 's/MACOSX_DEPLOYMENT_TARGET = 10.9;/MACOSX_DEPLOYMENT_TARGET = 10.13;/g' {} \;
 
       - name: Build with Xcode
         run: |
