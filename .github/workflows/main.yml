@@ -17,7 +17,7 @@ jobs:
 
       - name: Bootstrap dependencies
         run: |
-          export MACOSX_DEPLOYMENT_TARGET=10.13
+          env MACOSX_DEPLOYMENT_TARGET=10.13 \
           carthage bootstrap --platform macOS --use-xcframeworks --no-use-binaries --verbose --cache-builds
 
       - name: Build with Xcode
