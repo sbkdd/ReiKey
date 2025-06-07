@@ -1,27 +1,18 @@
-name: Build ReiKey
-
-on:
-  workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Configure GitHub authentication for Carthage
-        run: |
-          echo "machine github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
-          echo "machine api.github.com login ${{ secrets.GH_TOKEN }}" >> ~/.netrc
-
-      - name: Install Homebrew dependencies
-        run: |
-          brew install carthage
+      - name: Install dependencies
+        run: brew install carthage
 
       - name: Bootstrap dependencies
         run: carthage bootstrap --platform macOS
+
+      - name: List available Xcode schemes
+        run: xcodebuild -list -workspace ReiKey.xcworkspace
 
       - name: Build with Xcode
         run: |
@@ -29,9 +20,3 @@ jobs:
                      -scheme ReiKey \
                      -configuration Release \
                      clean build
-
-      - name: Upload .app
-        uses: actions/upload-artifact@v4
-        with:
-          name: ReiKey.app
-          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
