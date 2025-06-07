@@ -1,15 +1,11 @@
-name: Build ReiKey
-
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: macos-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: Set GitHub token for Carthage
+        run: echo "github \"github.com\" \"$GH_TOKEN\"" > ~/.gitconfig
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: brew install carthage
