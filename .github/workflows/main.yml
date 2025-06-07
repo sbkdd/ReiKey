@@ -21,8 +21,11 @@ jobs:
                      -configuration Release \
                      clean build
 
+      - name: Debug — find .app path
+        run: find /Users/runner/Library/Developer/Xcode/DerivedData -name "ReiKey.app"
+
       - name: Upload .app
         uses: actions/upload-artifact@v4
         with:
           name: ReiKey.app
-          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
+          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
