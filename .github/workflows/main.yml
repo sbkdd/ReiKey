@@ -8,30 +8,21 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
+      - name: Clone repo
         uses: actions/checkout@v3
 
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods
-
       - name: Install dependencies
-        run: pod install || true
+        run: brew install carthage
 
-      - name: Build with Xcode
+      - name: Build project
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
-            -scheme ReiKey \
-            -configuration Release \
-            -derivedDataPath build
+                     -scheme ReiKey \
+                     -configuration Release \
+                     clean build
 
-      - name: Archive App
-        run: |
-          mkdir dist
-          cp -R build/Build/Products/Release/ReiKey.app dist/
-          cd dist && zip -r ReiKey.zip ReiKey.app
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload .app
+        uses: actions/upload-artifact@v4
         with:
-          name: ReiKey
-          path: dist/ReiKey.zip
+          name: ReiKey.app
+          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
