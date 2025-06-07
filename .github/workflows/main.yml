@@ -5,29 +5,31 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13  # более стабильный образ
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          brew install carthage
-          carthage bootstrap --platform macOS --no-use-binaries
+      - name: Install latest Carthage
+        run: brew install carthage || brew upgrade carthage
 
-      - name: Build project
+      - name: Bootstrap dependencies
+        run: |
+          carthage bootstrap --platform macOS --use-xcframeworks --no-use-binaries \
+            --verbose \
+            --cache-builds
+
+      - name: Build with Xcode
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
                      -scheme ReiKey \
                      -configuration Release \
+                     CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
                      clean build
-
-      - name: Debug — find .app path
-        run: find /Users/runner/Library/Developer/Xcode/DerivedData -name "ReiKey.app"
 
       - name: Upload .app
         uses: actions/upload-artifact@v4
         with:
           name: ReiKey.app
-          path: /Users/runner/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
+          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
