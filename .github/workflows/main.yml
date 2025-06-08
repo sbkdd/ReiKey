@@ -15,7 +15,7 @@ jobs:
       - name: Install latest Git
         run: |
           brew install git
-          echo "✅ git version: $(/opt/homebrew/bin/git --version)"
+          echo "✅ git version: $(/opt/homebrew/bin/git --version || /usr/local/bin/git --version || git --version)"
 
       - name: Set GitHub token for Carthage
         run: echo "github.com=oauth:$GH_TOKEN" > ~/.gitconfig
@@ -26,9 +26,11 @@ jobs:
         run: brew install carthage
 
       - name: Bootstrap dependencies
-        run: carthage bootstrap --platform macOS
-        env:
-          PATH: /opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          which git
+          git --version
+          carthage bootstrap --platform macOS
 
       - name: List available Xcode schemes
         run: xcodebuild -list -workspace ReiKey.xcworkspace
