@@ -36,3 +36,10 @@ jobs:
             -configuration Release \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
             clean build
+
+      - name: Upload .app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: mainApp
+          path: |
+            ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/*.app
