@@ -6,31 +6,25 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    timeout-minutes: 20
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Install latest Git
-        run: |
-          brew install git
-          echo "✅ git version: $(/opt/homebrew/bin/git --version || /usr/local/bin/git --version || git --version)"
-
-      - name: Set GitHub token for Carthage
-        run: echo "github.com=oauth:$GH_TOKEN" > ~/.gitconfig
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: brew install git
 
       - name: Install Carthage
         run: brew install carthage
 
-      - name: Bootstrap dependencies
+      - name: Set up git credentials for Carthage
         run: |
-          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
-          which git
-          git --version
-          carthage bootstrap --platform macOS
+          git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bootstrap dependencies
+        run: carthage bootstrap --platform macOS
 
       - name: List available Xcode schemes
         run: xcodebuild -list -workspace ReiKey.xcworkspace
@@ -41,9 +35,4 @@ jobs:
                      -scheme ReiKey \
                      -configuration Release \
                      clean build
-
-      - name: Upload .app bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: ReiKey.app
-          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/ReiKey.app
+                  
