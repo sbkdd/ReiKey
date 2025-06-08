@@ -12,16 +12,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install latest Git
-        run: brew install git
+        run: |
+          brew install git || true
+          git --version
+
+      - name: Set GitHub token for Carthage
+        run: echo "github.com=${{ secrets.GITHUB_TOKEN }}" > ~/.gitconfig
 
       - name: Install Carthage
-        run: brew install carthage
-
-      - name: Set up git credentials for Carthage
-        run: |
-          git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: brew install carthage || true
 
       - name: Bootstrap dependencies
         run: carthage bootstrap --platform macOS
@@ -32,7 +31,6 @@ jobs:
       - name: Build with Xcode
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
-                     -scheme ReiKey \
+                     -scheme mainApp \
                      -configuration Release \
                      clean build
-                  
