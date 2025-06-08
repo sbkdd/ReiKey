@@ -13,34 +13,23 @@ jobs:
 
       - name: Install latest Git
         run: |
-          brew install git || true
-          echo "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH" >> $GITHUB_ENV
+          brew install git || brew upgrade git
           git --version
 
-      - name: Use new git in PATH
-        run: echo "/opt/homebrew/bin:/usr/local/bin:$PATH" >> ~/.bash_profile
-
-      - name: Export GitHub token for Carthage
-        run: echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-
       - name: Install Carthage
-        run: brew install carthage || true
+        run: brew install carthage
 
-      - name: Carthage bootstrap
+      - name: Bootstrap dependencies
         run: carthage bootstrap --platform macOS
 
       - name: List available Xcode schemes
         run: xcodebuild -list -workspace ReiKey.xcworkspace
 
-      - name: Build with Xcode
+      - name: Build with Xcode (no signing)
         run: |
           xcodebuild -workspace ReiKey.xcworkspace \
-                     -scheme mainApp \
-                     -configuration Release \
-                     clean build
-
-      - name: Upload .app bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: ReiKey.app
-          path: ~/Library/Developer/Xcode/DerivedData/**/Build/Products/Release/mainApp.app
+            -scheme mainApp \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
+            clean build
+            
